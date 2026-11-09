@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activity: BADDR data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --aubergine: #351959;
+        --white: #ffffff;
+        --indigo: #191998;
+        --dusty: #8ca7c9;
+        --aqua: #c2ebeb;
+        --cyan: #00c5ff;
+        --violet: #ba61ff;
+        --teal: #28d2d1;
+        --ink: var(--aubergine);
+        --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+        --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+        --radius: 14px;
+        --shadow: 0 1px 2px rgba(53, 25, 89, 0.08), 0 8px 24px rgba(53, 25, 89, 0.1);
+        --shadow-lift: 0 12px 34px rgba(53, 25, 89, 0.28);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        font-family: var(--body);
+        color: var(--ink);
+        line-height: 1.5;
+        background: radial-gradient(1200px 600px at 15% -10%, rgba(194, 235, 235, 0.55), transparent 60%),
+          radial-gradient(1000px 700px at 110% 0%, rgba(186, 97, 255, 0.1), transparent 55%), var(--white);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 40px clamp(16px, 4vw, 40px);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      /* Intro screen */
+      .eyebrow {
+        font-family: var(--display);
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-size: 0.74rem;
+        color: var(--indigo);
+        margin: 0 0 14px;
+      }
+      h1 {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: clamp(1.9rem, 4.6vw, 3.05rem);
+        line-height: 1.04;
+        letter-spacing: -0.015em;
+        margin: 0 0 18px;
+        max-width: 22ch;
+      }
+      .intro {
+        max-width: 66ch;
+        font-size: clamp(1rem, 1.4vw, 1.08rem);
+        color: #4a3b63;
+      }
+      .intro strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .intro p {
+        margin: 0 0 12px;
+      }
+      .instruction {
+        margin: 22px 0 30px;
+        padding: 14px 18px;
+        border-left: 4px solid var(--teal);
+        background: rgba(194, 235, 235, 0.45);
+        border-radius: 0 10px 10px 0;
+        font-size: 0.98rem;
+        max-width: 70ch;
+      }
+
+      button {
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-radius: 99px;
+        border: 1.5px solid transparent;
+        cursor: pointer;
+        padding: 12px 24px;
+        transition:
+          transform 0.12s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease,
+          opacity 0.2s ease;
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      .btn-primary {
+        background: var(--indigo);
+        color: var(--white);
+        box-shadow: 0 6px 18px rgba(25, 25, 152, 0.28);
+      }
+      .btn-primary:hover {
+        background: #12127a;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--indigo);
+        border-color: var(--dusty);
+      }
+      .btn-ghost:hover {
+        border-color: var(--indigo);
+        background: rgba(25, 25, 152, 0.05);
+      }
+      :focus-visible {
+        outline: 3px solid var(--cyan);
+        outline-offset: 2px;
+      }
+
+      /* Activity screen */
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+        margin: 0 0 26px;
+      }
+      .counter {
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .meter {
+        width: 160px;
+        height: 8px;
+        border-radius: 99px;
+        background: rgba(140, 167, 201, 0.35);
+        overflow: hidden;
+      }
+      .meter > i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--teal), var(--cyan));
+        transition: width 0.35s ease;
+      }
+      .spacer {
+        flex: 1 1 auto;
+      }
+
+      .card-stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px;
+        margin-bottom: 6px;
+      }
+      .card {
+        position: relative;
+        width: fit-content;
+        max-width: min(560px, 100%);
+        background: var(--white);
+        border: 2px solid rgba(140, 167, 201, 0.55);
+        border-radius: 16px;
+        padding: 22px 30px;
+        font-size: 1.06rem;
+        line-height: 1.5;
+        color: var(--ink);
+        text-align: center;
+        box-shadow: var(--shadow);
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        transition:
+          box-shadow 0.18s ease,
+          border-color 0.18s ease,
+          transform 0.12s ease;
+        animation: cardIn 0.28s ease;
+      }
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .card.grabbing {
+        position: fixed;
+        z-index: 1000;
+        cursor: grabbing;
+        box-shadow: var(--shadow-lift);
+        pointer-events: none;
+        transform: rotate(-1.1deg) scale(1.015);
+      }
+      .card.correct {
+        border-color: var(--teal);
+      }
+      .card.incorrect {
+        border-color: var(--aubergine);
+      }
+      .placeholder {
+        border: 2px dashed var(--cyan);
+        border-radius: 16px;
+        background: rgba(0, 197, 255, 0.06);
+      }
+      .badge {
+        position: absolute;
+        top: -16px;
+        right: -16px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 1.7rem;
+        color: var(--white);
+        font-weight: 700;
+        box-shadow: var(--shadow-lift);
+        animation: pop 0.26s cubic-bezier(0.2, 1.4, 0.5, 1);
+      }
+      .badge.ok {
+        background: var(--teal);
+      }
+      .badge.no {
+        background: var(--aubergine);
+      }
+      @keyframes pop {
+        from {
+          transform: scale(0.3);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .card-hint {
+        text-align: center;
+        color: var(--dusty);
+        font-size: 0.85rem;
+        margin: 0 0 18px;
+      }
+
+      .choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .zone {
+        border-radius: var(--radius);
+        padding: 16px 16px;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        font-family: var(--display);
+        color: var(--aubergine);
+        transition:
+          box-shadow 0.18s ease,
+          transform 0.12s ease,
+          filter 0.18s ease;
+      }
+      .zone:last-child {
+        grid-column: 1 / -1;
+      }
+      .zone .z-icon {
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .zone .z-title {
+        font-weight: 700;
+        font-size: 1.08rem;
+        line-height: 1.2;
+      }
+      .zone .z-hint {
+        font-family: var(--body);
+        font-weight: 500;
+        font-size: 0.84rem;
+        line-height: 1.35;
+        max-width: 34ch;
+      }
+      .zone {
+        background: rgba(194, 235, 235, 0.45);
+        border-color: rgba(140, 167, 201, 0.7);
+      }
+      .zone:hover {
+        border-color: var(--indigo);
+        filter: none;
+      }
+      .zone .z-icon {
+        background: var(--indigo);
+        color: var(--white);
+      }
+      .zone.tried {
+        opacity: 0.45;
+        pointer-events: none;
+      }
+      .zone.hot {
+        border-color: var(--cyan);
+        box-shadow: inset 0 0 0 3px var(--cyan);
+        background: rgba(0, 197, 255, 0.14);
+        transform: translateY(2px);
+      }
+      .zone.flash-right {
+        background: var(--teal);
+        border-color: var(--teal);
+      }
+      .zone.flash-wrong {
+        background: var(--aubergine);
+        border-color: var(--aubergine);
+        color: var(--white);
+        animation: shake 0.4s ease;
+      }
+      .zone.flash-wrong .z-icon {
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .card-stage.shake {
+        animation: shake 0.4s ease;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-8px);
+        }
+        40% {
+          transform: translateX(7px);
+        }
+        60% {
+          transform: translateX(-5px);
+        }
+        80% {
+          transform: translateX(3px);
+        }
+      }
+      .card-hint.warn {
+        color: var(--aubergine);
+        font-weight: 600;
+      }
+
+      /* Result */
+      .result {
+        display: none;
+        padding: 30px 26px;
+        border-radius: var(--radius);
+        text-align: center;
+        background: linear-gradient(120deg, rgba(40, 210, 209, 0.16), rgba(0, 197, 255, 0.12));
+        border: 1.5px solid rgba(40, 210, 209, 0.5);
+      }
+      .result.show {
+        display: block;
+      }
+      .result h2 {
+        font-family: var(--display);
+        margin: 0 0 8px;
+        font-size: 1.6rem;
+      }
+      .result p {
+        margin: 0 0 20px;
+        color: #4a3b63;
+      }
+      .score-num {
+        color: var(--indigo);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .card .c-term {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 1.2rem;
+        line-height: 1.25;
+        display: block;
+      }
+      .card .c-term .c-letter {
+        color: var(--indigo);
+      }
+      .card .c-desc {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.98rem;
+        color: #4a3b63;
+      }
+
+      /* BADDR letter row (stands in for the template's header image) */
+      .baddr {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 auto 24px;
+      }
+      .baddr span {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: var(--aubergine);
+        color: var(--white);
+      }
+      .baddr {
+        gap: 8px;
+      }
+
+      #introScreen .baddr {
+        justify-content: flex-start;
+      }
+
+      /* Result summary */
+      .matches {
+        list-style: none;
+        margin: 0 0 22px;
+        padding: 0;
+        text-align: left;
+        display: grid;
+        gap: 8px;
+      }
+      .matches li {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1.5px solid rgba(140, 167, 201, 0.45);
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        line-height: 1.4;
+      }
+      .matches b {
+        font-family: var(--display);
+        color: var(--indigo);
+        flex: 0 0 auto;
+      }
+      .matches .arrow {
+        color: var(--dusty);
+      }
+
+      @media (max-width: 560px) {
+        .choices {
+          grid-template-columns: 1fr;
+        }
+        .baddr span {
+          width: 36px;
+          height: 36px;
+          font-size: 1rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation: none !important;
+        }
+        .card.grabbing {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- ===== Intro screen ===== -->
+      <section id="introScreen">
+        <h1>Activity: BADDR data</h1>
+        <div class="baddr" role="img" aria-label="BADDR: Blaming, Aggregated, Decontextualised, Deficit-linked, Restricted access">
+          <span>B</span><span>A</span><span>D</span><span>D</span><span>R</span>
+        </div>
+        <p class="instruction">
+          <strong>Match the harmful BADDR data practices to what Indigenous data needs.</strong> You&rsquo;ll see one practice at a time.
+          Drag the card down onto the matching need, tap a need, or press <strong>1</strong>&ndash;<strong>5</strong>. Only the right match
+          will work. If you choose the wrong one, try again.
+        </p>
+        <button class="btn-primary" id="startBtn" type="button">Start activity</button>
+      </section>
+
+      <!-- ===== Activity screen ===== -->
+      <section id="activityScreen" style="display: none">
+        <div class="controls">
+          <div class="counter">
+            <span id="countText">Card 1 of 5</span>
+            <span class="meter" aria-hidden="true"><i id="meterFill"></i></span>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn-ghost" id="restartBtn" type="button">Restart</button>
+        </div>
+
+        <div class="baddr act-top" role="img" aria-label="BADDR: Blaming, Aggregated, Decontextualised, Deficit-linked, Restricted access">
+          <span>B</span><span>A</span><span>D</span><span>D</span><span>R</span>
+        </div>
+        <p class="instruction act-top">
+          Match the harmful BADDR data practice to what Indigenous data needs. Drag the card down onto a need, tap a need, or press
+          <strong>1</strong>&ndash;<strong>5</strong>.
+        </p>
+
+        <div class="arena" id="arena">
+          <div class="card-stage" id="cardStage"></div>
+          <p class="card-hint" id="cardHint">Drag the card down onto a need, tap one, or press 1&ndash;5.</p>
+          <div class="choices" id="choices">
+            <div
+              class="zone zone-1"
+              data-zone="0"
+              role="button"
+              tabindex="0"
+              aria-label="Choose Lifeworld data, to inform a comprehensive narrative of who we are"
+            >
+              <span class="z-icon" aria-hidden="true">1</span>
+              <span class="z-title">Lifeworld data</span>
+              <span class="z-hint">to inform a comprehensive narrative of who we are</span>
+            </div>
+            <div
+              class="zone zone-2"
+              data-zone="1"
+              role="button"
+              tabindex="0"
+              aria-label="Choose Disaggregated data, that recognises diversity"
+            >
+              <span class="z-icon" aria-hidden="true">2</span>
+              <span class="z-title">Disaggregated data</span>
+              <span class="z-hint">that recognises diversity</span>
+            </div>
+            <div
+              class="zone zone-3"
+              data-zone="2"
+              role="button"
+              tabindex="0"
+              aria-label="Choose Contextualised data, that recognises social and cultural circumstances"
+            >
+              <span class="z-icon" aria-hidden="true">3</span>
+              <span class="z-title">Contextualised data</span>
+              <span class="z-hint">that recognises social and cultural circumstances</span>
+            </div>
+            <div
+              class="zone zone-4"
+              data-zone="3"
+              role="button"
+              tabindex="0"
+              aria-label="Choose Indigenous priority data, measures beyond problems and addresses our priorities"
+            >
+              <span class="z-icon" aria-hidden="true">4</span>
+              <span class="z-title">Indigenous priority data</span>
+              <span class="z-hint">measures beyond problems and addresses our priorities</span>
+            </div>
+            <div
+              class="zone zone-5"
+              data-zone="4"
+              role="button"
+              tabindex="0"
+              aria-label="Choose Available, amenable data, accessible and amenable to our requirements"
+            >
+              <span class="z-icon" aria-hidden="true">5</span>
+              <span class="z-title">Available, amenable data</span>
+              <span class="z-hint">accessible and amenable to our requirements</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="result" id="result" role="status" aria-live="polite">
+          <div class="baddr" role="img" aria-label="BADDR: Blaming, Aggregated, Decontextualised, Deficit-linked, Restricted access">
+            <span>B</span><span>A</span><span>D</span><span>D</span><span>R</span>
+          </div>
+          <h2 id="resultTitle"></h2>
+          <p id="resultBody"></p>
+          <ul class="matches" id="matches"></ul>
+          <button class="btn-primary" id="againBtn" type="button">Start again</button>
+        </div>
+      </section>
+
+      <p class="sr-only" id="live" role="status" aria-live="polite"></p>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        const NEEDS = [
+          { title: "Lifeworld data", hint: "to inform a comprehensive narrative of who we are" },
+          { title: "Disaggregated data", hint: "that recognises diversity" },
+          { title: "Contextualised data", hint: "that recognises social and cultural circumstances" },
+          { title: "Indigenous priority data", hint: "measures beyond problems and addresses our priorities" },
+          { title: "Available, amenable data", hint: "accessible and amenable to our requirements" },
+        ];
+        const DATA = [
+          { letter: "B", term: "Blaming data", desc: "Indigenous peoples as the problem", match: 0 },
+          { letter: "A", term: "Aggregated data", desc: "Ignores Indigenous cultural and geographic diversity", match: 1 },
+          {
+            letter: "D",
+            term: "Decontextualised data",
+            desc: "Focuses on individuals outside of their social and cultural context",
+            match: 2,
+          },
+          { letter: "D", term: "Deficit-linked concepts", desc: "Serves the priorities of governments", match: 3 },
+          {
+            letter: "R",
+            term: "Restricted access data",
+            desc: "Barricaded away by official statistical agencies and institutions",
+            match: 4,
+          },
+        ];
+        const TOTAL = DATA.length;
+
+        const introScreen = document.getElementById("introScreen");
+        const activityScreen = document.getElementById("activityScreen");
+        const startBtn = document.getElementById("startBtn");
+        const cardStage = document.getElementById("cardStage");
+        const zoneEls = Array.from(document.querySelectorAll(".zone"));
+        const matchesList = document.getElementById("matches");
+        const countText = document.getElementById("countText");
+        const meterFill = document.getElementById("meterFill");
+        const controls = document.querySelector(".controls");
+        const actTop = Array.from(document.querySelectorAll(".act-top"));
+        const arena = document.getElementById("arena");
+        const result = document.getElementById("result");
+        const resultTitle = document.getElementById("resultTitle");
+        const resultBody = document.getElementById("resultBody");
+        const restartBtn = document.getElementById("restartBtn");
+        const againBtn = document.getElementById("againBtn");
+        const live = document.getElementById("live");
+        const cardHint = document.getElementById("cardHint");
+        const HINT = "Drag the card down onto a need, tap one, or press 1\u20135.";
+
+        let queue = [],
+          i = 0,
+          correctCount = 0,
+          missedThis = false,
+          locked = false,
+          currentCard = null;
+
+        function announce(m) {
+          live.textContent = "";
+          requestAnimationFrame(() => {
+            live.textContent = m;
+          });
+        }
+
+        function shuffle(arr) {
+          const a = arr.slice();
+          for (let k = a.length - 1; k > 0; k--) {
+            const j = Math.floor(Math.random() * (k + 1));
+            [a[k], a[j]] = [a[j], a[k]];
+          }
+          return a;
+        }
+
+        function updateProgress() {
+          countText.textContent = "Card " + Math.min(i + 1, TOTAL) + " of " + TOTAL;
+          meterFill.style.width = (i / TOTAL) * 100 + "%";
+        }
+
+        function renderCard() {
+          const item = queue[i];
+          const card = document.createElement("div");
+          card.className = "card";
+          card.setAttribute("tabindex", "0");
+          card.dataset.match = item.match;
+          const term = document.createElement("span");
+          term.className = "c-term";
+          const lt = document.createElement("span");
+          lt.className = "c-letter";
+          lt.textContent = item.letter;
+          term.appendChild(lt);
+          term.appendChild(document.createTextNode(" = " + item.term));
+          const desc = document.createElement("span");
+          desc.className = "c-desc";
+          desc.textContent = item.desc;
+          card.appendChild(term);
+          card.appendChild(desc);
+          card.setAttribute("aria-label", item.letter + " = " + item.term + ". " + item.desc + ". Choose a need by pressing 1 to 5.");
+          card.addEventListener("pointerdown", onPointerDown);
+          cardStage.appendChild(card);
+          currentCard = card;
+          card.focus({ preventScroll: true });
+        }
+
+        function answer(zoneKey) {
+          if (locked || !currentCard) return;
+          const card = currentCard;
+          const correctIdx = Number(card.dataset.match);
+          const zone = zoneEls[zoneKey];
+
+          if (zoneKey !== correctIdx) {
+            // Wrong match: refuse it, give feedback, let the learner try again.
+            missedThis = true;
+            zone.classList.add("tried");
+            zone.setAttribute("aria-disabled", "true");
+            zone.classList.remove("flash-wrong");
+            void zone.offsetWidth;
+            zone.classList.add("flash-wrong");
+            cardStage.classList.remove("shake"); card.classList.remove("incorrect");
+            void cardStage.offsetWidth;
+            cardStage.classList.add("shake");
+            card.classList.add("incorrect");
+            cardHint.textContent = "Not that one. Try another need.";
+            cardHint.classList.add("warn");
+            announce("Incorrect. That is not the match. Try another.");
+            setTimeout(() => {
+              zone.classList.remove("flash-wrong");
+              cardStage.classList.remove("shake"); card.classList.remove("incorrect");
+            }, 450);
+            return;
+          }
+
+          locked = true;
+          if (!missedThis) correctCount++;
+          card.classList.add("correct");
+          const badge = document.createElement("div");
+          badge.className = "badge ok";
+          badge.textContent = "\u2713";
+          card.appendChild(badge);
+          zone.classList.remove("tried");
+          zone.classList.add("flash-right");
+          cardHint.textContent = "Correct!";
+          cardHint.classList.remove("warn");
+          announce("Correct.");
+          setTimeout(nextCard, 1600);
+        }
+
+        function clearFlash() {
+          zoneEls.forEach((z) => {
+            z.classList.remove("flash-right", "flash-wrong", "hot", "tried");
+            z.removeAttribute("aria-disabled");
+          });
+          missedThis = false;
+          cardHint.textContent = HINT;
+          cardHint.classList.remove("warn");
+        }
+
+        function nextCard() {
+          clearFlash();
+          cardStage.innerHTML = "";
+          currentCard = null;
+          i++;
+          updateProgress();
+          if (i >= TOTAL) {
+            showResults();
+            return;
+          }
+          locked = false;
+          renderCard();
+        }
+
+        function showResults() {
+          controls.style.display = "none";
+          actTop.forEach((el) => (el.style.display = "none"));
+          arena.style.display = "none";
+          resultTitle.innerHTML = 'You matched <span class="score-num">' + correctCount + " of " + TOTAL + "</span> on the first try";
+          resultBody.textContent =
+            correctCount === TOTAL
+              ? "Every practice matched to what Indigenous data needs, first time."
+              : "All five are matched. Here is the full set. Run through the cards again whenever you'd like.";
+          matchesList.innerHTML = "";
+          DATA.forEach((d) => {
+            const li = document.createElement("li");
+            const b = document.createElement("b");
+            b.textContent = d.letter + " = " + d.term;
+            const ar = document.createElement("span");
+            ar.className = "arrow";
+            ar.setAttribute("aria-hidden", "true");
+            ar.textContent = "\u2192";
+            const n = document.createElement("span");
+            n.textContent = NEEDS[d.match].title + ": " + NEEDS[d.match].hint;
+            li.append(b, ar, n);
+            matchesList.appendChild(li);
+          });
+          result.classList.add("show");
+          announce("Finished. You matched " + correctCount + " of " + TOTAL + " on the first try.");
+        }
+
+        function start() {
+          queue = shuffle(DATA);
+          i = 0;
+          correctCount = 0;
+          locked = false;
+          cardStage.innerHTML = "";
+          clearFlash();
+          result.classList.remove("show");
+          controls.style.display = "";
+          actTop.forEach((el) => (el.style.display = ""));
+          arena.style.display = "";
+          updateProgress();
+          renderCard();
+        }
+
+        zoneEls.forEach((el, key) => {
+          el.addEventListener("click", () => answer(key));
+          el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              answer(key);
+            }
+          });
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (activityScreen.style.display === "none" || e.ctrlKey || e.metaKey || e.altKey) return;
+          if (e.key >= "1" && e.key <= "5") {
+            e.preventDefault();
+            answer(Number(e.key) - 1);
+          }
+        });
+
+        startBtn.addEventListener("click", () => {
+          introScreen.style.display = "none";
+          activityScreen.style.display = "";
+          start();
+        });
+        restartBtn.addEventListener("click", start);
+        againBtn.addEventListener("click", start);
+
+        // ---------- Pointer drag (mouse + touch) ----------
+        let drag = null,
+          hot = null;
+
+        function onPointerDown(e) {
+          if (e.button !== undefined && e.button !== 0) return;
+          if (locked) return;
+          const card = e.currentTarget;
+          drag = { card, id: e.pointerId, moved: false, startX: e.clientX, startY: e.clientY, offX: 0, offY: 0, ph: null };
+          card.setPointerCapture(e.pointerId);
+          card.addEventListener("pointermove", onPointerMove);
+          card.addEventListener("pointerup", onPointerUp);
+          card.addEventListener("pointercancel", onPointerUp);
+        }
+
+        function beginDrag(e) {
+          const card = drag.card;
+          const r = card.getBoundingClientRect();
+          drag.offX = e.clientX - r.left;
+          drag.offY = e.clientY - r.top;
+          const ph = document.createElement("div");
+          ph.className = "placeholder";
+          ph.style.height = r.height + "px";
+          ph.style.width = r.width + "px";
+          card.parentNode.insertBefore(ph, card);
+          drag.ph = ph;
+          card.classList.add("grabbing");
+          card.style.width = r.width + "px";
+          drag.moved = true;
+          move(e.clientX, e.clientY);
+        }
+
+        function move(x, y) {
+          drag.card.style.left = x - drag.offX + "px";
+          drag.card.style.top = y - drag.offY + "px";
+        }
+
+        function zoneUnder(x, y) {
+          const el = document.elementFromPoint(x, y);
+          return el ? el.closest("[data-zone]") : null;
+        }
+
+        function setHot(z) {
+          if (hot === z) return;
+          if (hot) hot.classList.remove("hot");
+          hot = z;
+          if (hot) hot.classList.add("hot");
+        }
+
+        function onPointerMove(e) {
+          if (!drag) return;
+          if (!drag.moved) {
+            if (Math.abs(e.clientX - drag.startX) < 6 && Math.abs(e.clientY - drag.startY) < 6) return;
+            beginDrag(e);
+          }
+          e.preventDefault();
+          move(e.clientX, e.clientY);
+          setHot(zoneUnder(e.clientX, e.clientY));
+        }
+
+        function onPointerUp(e) {
+          if (!drag) return;
+          const card = drag.card;
+          card.removeEventListener("pointermove", onPointerMove);
+          card.removeEventListener("pointerup", onPointerUp);
+          card.removeEventListener("pointercancel", onPointerUp);
+
+          const wasDrag = drag.moved;
+          const target = wasDrag ? zoneUnder(e.clientX, e.clientY) : null;
+
+          card.classList.remove("grabbing");
+          card.style.left = card.style.top = card.style.width = "";
+          if (drag.ph) {
+            drag.ph.replaceWith(card);
+          }
+          setHot(null);
+
+          drag = null;
+          if (wasDrag && target) {
+            answer(Number(target.dataset.zone));
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
